@@ -1,10 +1,9 @@
+import { IsString } from 'class-validator';
+
 export class UpdatePasswordDto {
+  @IsString()
   oldPassword: string;
+
+  @IsString()
   newPassword: string;
 }
-
-type UpdatePasswordDtoKeys = keyof UpdatePasswordDto;
-export const updatePasswordDtoKeys: UpdatePasswordDtoKeys[] = [
-  'oldPassword',
-  'newPassword',
-];

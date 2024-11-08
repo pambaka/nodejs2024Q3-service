@@ -4,14 +4,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto, createUserDtoKeys } from './dto/create-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { users } from '../db';
 import { User, UserWoPassword } from './interfaces/user.interface';
 import isValidUuid from 'src/utils/is-valid-uuid';
-import {
-  UpdatePasswordDto,
-  updatePasswordDtoKeys,
-} from './dto/update-password.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 import { ERROR_MESSAGE } from 'src/const';
 
 @Injectable()
@@ -31,17 +28,6 @@ export class UserService {
   }
 
   async createUser(createUserDto: CreateUserDto): Promise<UserWoPassword> {
-    if (
-      !createUserDtoKeys.every(
-        (key) =>
-          Object.keys(createUserDto).includes(key) &&
-          typeof createUserDto[key] === 'string',
-      )
-    )
-      throw new BadRequestException(
-        ERROR_MESSAGE.invalidDto(createUserDtoKeys),
-      );
-
     const { login, password } = createUserDto;
     const timestamp = Date.now();
     const newUser: User = {
@@ -64,17 +50,6 @@ export class UserService {
     id: string,
     updatePasswordDto: UpdatePasswordDto,
   ): Promise<UserWoPassword> {
-    if (
-      !updatePasswordDtoKeys.every(
-        (key) =>
-          Object.keys(updatePasswordDto).includes(key) &&
-          typeof updatePasswordDto[key] === 'string',
-      )
-    )
-      throw new BadRequestException(
-        ERROR_MESSAGE.invalidDto(updatePasswordDtoKeys),
-      );
-
     if (!isValidUuid(id))
       throw new BadRequestException(ERROR_MESSAGE.invalidUuid);
 

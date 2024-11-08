@@ -1,7 +1,9 @@
+import { IsString } from 'class-validator';
+
 export class CreateUserDto {
+  @IsString()
   login: string;
+
+  @IsString()
   password: string;
 }
-
-type CreateUserDtoKeys = keyof CreateUserDto;
-export const createUserDtoKeys: CreateUserDtoKeys[] = ['login', 'password'];
