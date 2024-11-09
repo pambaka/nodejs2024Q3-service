@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ERROR_MESSAGE } from 'src/const';
-import { albums, artists } from 'src/db';
+import { albums, artists, resetDependencies, tracks } from 'src/db';
 import validateId from 'src/utils/validate-id';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { Artist } from './interfaces/artist.interface';
@@ -48,9 +48,8 @@ export class ArtistService {
 
     artists.splice(index, 1);
 
-    albums.forEach((album) => {
-      if (album.artistId === id) album.artistId = null;
-    });
+    resetDependencies(albums, 'artistId', id);
+    resetDependencies(tracks, 'artistId', id);
   }
 
   private async getArtistIndex(id: string) {

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ERROR_MESSAGE } from 'src/const';
-import { albums } from 'src/db';
+import { albums, resetDependencies, tracks } from 'src/db';
 import validateId from 'src/utils/validate-id';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { Album } from './interfaces/album.interface';
@@ -52,6 +52,8 @@ export class AlbumService {
 
     const index = await this.getAlbumIndex(id);
     albums.splice(index, 1);
+
+    resetDependencies(tracks, 'albumId', id);
   }
 
   private async getAlbumIndex(id: string) {
