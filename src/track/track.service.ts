@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
-import { tracks } from 'src/db';
+import { resetFavDependency, tracks } from 'src/db';
 import { ERROR_MESSAGE } from 'src/const';
 import { Track } from './interfaces/track.interface';
 import validateId from 'src/utils/validate-id';
@@ -56,6 +56,8 @@ export class TrackService {
     const index = await this.getTrackIndex(id);
 
     tracks.splice(index, 1);
+
+    resetFavDependency('tracks', id);
   }
 
   private async getTrackIndex(id: string) {
