@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Param, Delete, HttpCode } from '@nestjs/common';
 import { FavsService } from './favs.service';
-import { Track } from 'src/track/entities/track.entity';
 import { Album } from 'src/album/interfaces/album.interface';
 import { Artist } from 'src/artist/interfaces/artist.interface';
+import { Track } from 'src/track/interfaces/track.interface';
 
 @Controller('favs')
 export class FavsController {
