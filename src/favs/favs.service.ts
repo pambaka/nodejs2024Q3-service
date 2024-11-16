@@ -3,7 +3,7 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { db, favs, getEntryIndexById, getFavEntryIndexById } from 'src/db';
+import { favs, getFavEntryIndexById } from 'src/db';
 import validateId from 'src/utils/validate-id';
 import { ERROR_MESSAGE } from 'src/const';
 import { favKey } from './interfaces/favs.interface';
@@ -26,14 +26,8 @@ export class FavsService {
       entry = await prisma.tracks.findUnique({ where: { id } });
     } else if (key === 'artists') {
       entry = await prisma.artists.findUnique({ where: { id } });
-    } else {
-      const index = getEntryIndexById(key, id);
-      if (index === -1)
-        throw new UnprocessableEntityException(
-          ERROR_MESSAGE.notFound('Entry', id),
-        );
-
-      entry = db[key][index] as T;
+    } else if (key === 'albums') {
+      entry = await prisma.albums.findUnique({ where: { id } });
     }
     if (!entry)
       throw new UnprocessableEntityException(

@@ -22,6 +22,7 @@ model tracks {
   artistId String?
   albumId  String?
   duration Int
+  albums   albums?  @relation(fields: [albumId], references: [id], onUpdate: NoAction, map: "fk_track_album")
   artists  artists? @relation(fields: [artistId], references: [id], onUpdate: NoAction, map: "fk_track_artist")
 }
 
@@ -29,5 +30,15 @@ model artists {
   id     String   @id
   name   String
   grammy Boolean
+  albums albums[]
   tracks tracks[]
+}
+
+model albums {
+  id       String   @id
+  name     String
+  year     Int
+  artistId String?
+  artists  artists? @relation(fields: [artistId], references: [id], onUpdate: NoAction)
+  tracks   tracks[]
 }

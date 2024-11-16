@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ERROR_MESSAGE } from 'src/const';
-import { albums, resetDependencies, resetFavDependency } from 'src/db';
+import { resetFavDependency } from 'src/db';
 import validateId from 'src/utils/validate-id';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { Artist } from './interfaces/artist.interface';
@@ -50,7 +50,6 @@ export class ArtistService {
 
     if (artist) await prisma.artists.delete({ where: { id } });
 
-    resetDependencies(albums, 'artistId', id);
     resetFavDependency('artists', id);
   }
 

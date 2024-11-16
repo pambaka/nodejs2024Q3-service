@@ -1,23 +1,24 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ERROR_MESSAGE } from 'src/const';
-import { albums, resetFavDependency, resetTrackDependency } from 'src/db';
+import { resetFavDependency } from 'src/db';
 import validateId from 'src/utils/validate-id';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { Album } from './interfaces/album.interface';
 import { UpdateAlbumDto } from './dto/update-album.dto';
+import prisma from 'src/prisma-client';
 
 @Injectable()
 export class AlbumService {
   async getAlbums() {
-    return albums;
+    return prisma.albums.findMany();
   }
 
   async getAlbum(id: string) {
     validateId(id);
 
-    const index = await this.getAlbumIndex(id);
+    const album = await this.getAlbumFromDb(id);
 
-    return albums[index];
+    return album;
   }
 
   async createAlbum(createAlbumDto: CreateAlbumDto) {
@@ -28,7 +29,7 @@ export class AlbumService {
       year,
       artistId: artistId ?? null,
     };
-    albums.push(album);
+    await prisma.albums.create({ data: album });
 
     return album;
   }
@@ -36,13 +37,14 @@ export class AlbumService {
   async updateAlbum(id: string, updateAlbumDto: UpdateAlbumDto) {
     validateId(id);
 
-    const index = await this.getAlbumIndex(id);
-    const album = albums[index];
+    const album = await this.getAlbumFromDb(id);
 
     const { name, year, artistId } = updateAlbumDto;
     album.name = name;
     album.year = year;
-    album.artistId = artistId;
+    if (artistId !== undefined) album.artistId = artistId;
+
+    await prisma.albums.update({ where: { id }, data: album });
 
     return album;
   }
@@ -50,18 +52,17 @@ export class AlbumService {
   async deleteAlbum(id: string) {
     validateId(id);
 
-    const index = await this.getAlbumIndex(id);
-    albums.splice(index, 1);
+    const album = await this.getAlbumFromDb(id);
+    if (album) await prisma.albums.delete({ where: { id } });
 
-    resetTrackDependency('albumId', id);
     resetFavDependency('albums', id);
   }
 
-  private async getAlbumIndex(id: string) {
-    const index = albums.map((album) => album.id).indexOf(id);
-    if (index === -1)
+  private async getAlbumFromDb(id: string) {
+    const album = await prisma.albums.findUnique({ where: { id } });
+    if (!album)
       throw new NotFoundException(ERROR_MESSAGE.notFound('Album', id));
 
-    return index;
+    return album;
   }
 }
