@@ -13,6 +13,8 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 
 COPY . .
 
+RUN npx prisma generate
+
 EXPOSE ${PORT}
 
 CMD ["npm", "run", "start:dev"]
