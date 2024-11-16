@@ -9,3 +9,14 @@ CREATE TABLE "users" (
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateTable
+CREATE TABLE "tracks" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "artistId" TEXT,
+    "albumId" TEXT,
+    "duration" INTEGER NOT NULL,
+
+    CONSTRAINT "tracks_pkey" PRIMARY KEY ("id")
+);

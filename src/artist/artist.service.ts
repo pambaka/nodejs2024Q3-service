@@ -5,7 +5,7 @@ import {
   artists,
   resetDependencies,
   resetFavDependency,
-  tracks,
+  resetTrackDependency,
 } from 'src/db';
 import validateId from 'src/utils/validate-id';
 import { CreateArtistDto } from './dto/create-artist.dto';
@@ -55,7 +55,7 @@ export class ArtistService {
     artists.splice(index, 1);
 
     resetDependencies(albums, 'artistId', id);
-    resetDependencies(tracks, 'artistId', id);
+    resetTrackDependency('artistId', id);
     resetFavDependency('artists', id);
   }
 

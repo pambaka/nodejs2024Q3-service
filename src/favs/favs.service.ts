@@ -10,6 +10,7 @@ import { favKey } from './interfaces/favs.interface';
 import { Artist } from 'src/artist/interfaces/artist.interface';
 import { Album } from 'src/album/interfaces/album.interface';
 import { Track } from 'src/track/interfaces/track.interface';
+import prisma from 'src/prisma-client';
 
 @Injectable()
 export class FavsService {
@@ -17,18 +18,29 @@ export class FavsService {
     return favs;
   }
 
-  add<T extends Artist | Album | Track>(key: favKey, id: string) {
+  async add<T extends Artist | Album | Track>(key: favKey, id: string) {
     validateId(id);
 
-    const index = getEntryIndexById(key, id);
-    if (index === -1)
-      throw new UnprocessableEntityException(
-        ERROR_MESSAGE.notFound('Entry', id),
-      );
+    if (key === 'tracks') {
+      const track = await prisma.tracks.findUnique({ where: { id } });
+      if (!track)
+        throw new UnprocessableEntityException(
+          ERROR_MESSAGE.notFound('Entry', id),
+        );
+      const entry = track as T;
+      const array = favs[key] as T[];
+      array.push(entry);
+    } else {
+      const index = getEntryIndexById(key, id);
+      if (index === -1)
+        throw new UnprocessableEntityException(
+          ERROR_MESSAGE.notFound('Entry', id),
+        );
 
-    const entry = db[key][index] as T;
-    const array = favs[key] as T[];
-    array.push(entry);
+      const entry = db[key][index] as T;
+      const array = favs[key] as T[];
+      array.push(entry);
+    }
   }
 
   remove(key: favKey, id: string) {

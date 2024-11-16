@@ -1,10 +1,8 @@
 import { Album } from './album/interfaces/album.interface';
 import { Artist } from './artist/interfaces/artist.interface';
 import { favKey, FavoritesResponse } from './favs/interfaces/favs.interface';
+import prisma from './prisma-client';
 import { Track } from './track/interfaces/track.interface';
-import { User } from './user/interfaces/user.interface';
-
-export const users: User[] = [];
 
 export const artists: Artist[] = [];
 
@@ -21,6 +19,19 @@ export const resetDependencies = (
 ) => {
   array.forEach((entry: Album | Track) => {
     if (entry[key] === id) entry[key] = null;
+  });
+};
+
+export const resetTrackDependency = async (
+  key: 'artistId' | 'albumId',
+  id: string,
+) => {
+  const tracks = await prisma.tracks.findMany({ where: { [key]: id } });
+  tracks.forEach(async (track) => {
+    await prisma.tracks.update({
+      where: { id: track.id },
+      data: { [key]: null },
+    });
   });
 };
 

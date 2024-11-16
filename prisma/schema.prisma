@@ -15,3 +15,11 @@ model users {
   createdAt String
   updatedAt String
 }
+
+model tracks {
+  id       String  @id
+  name     String
+  artistId String?
+  albumId  String?
+  duration Int
+}
