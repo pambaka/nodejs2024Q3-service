@@ -1,35 +1,30 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ERROR_MESSAGE } from 'src/const';
-import {
-  albums,
-  artists,
-  resetDependencies,
-  resetFavDependency,
-  resetTrackDependency,
-} from 'src/db';
+import { albums, resetDependencies, resetFavDependency } from 'src/db';
 import validateId from 'src/utils/validate-id';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { Artist } from './interfaces/artist.interface';
 import { UpdateArtistDto } from './dto/update-artist.dto';
+import prisma from 'src/prisma-client';
 
 @Injectable()
 export class ArtistService {
   async getArtists() {
-    return artists;
+    return await prisma.artists.findMany();
   }
 
   async getArtist(id: string) {
     validateId(id);
 
-    const index = await this.getArtistIndex(id);
+    const artist = await this.getArtistFromDb(id);
 
-    return artists[index];
+    return artist;
   }
 
   async createArtist(createArtistDto: CreateArtistDto) {
     const { name, grammy } = createArtistDto;
     const artist: Artist = { id: crypto.randomUUID(), name, grammy };
-    artists.push(artist);
+    await prisma.artists.create({ data: artist });
 
     return artist;
   }
@@ -37,12 +32,13 @@ export class ArtistService {
   async updateArtist(id: string, updateArtistDto: UpdateArtistDto) {
     validateId(id);
 
-    const index = await this.getArtistIndex(id);
-    const artist = artists[index];
+    const artist = await this.getArtistFromDb(id);
 
     const { name, grammy } = updateArtistDto;
     artist.name = name;
     artist.grammy = grammy;
+
+    await prisma.artists.update({ where: { id }, data: artist });
 
     return artist;
   }
@@ -50,20 +46,19 @@ export class ArtistService {
   async removeArtist(id: string) {
     validateId(id);
 
-    const index = await this.getArtistIndex(id);
+    const artist = await this.getArtistFromDb(id);
 
-    artists.splice(index, 1);
+    if (artist) await prisma.artists.delete({ where: { id } });
 
     resetDependencies(albums, 'artistId', id);
-    resetTrackDependency('artistId', id);
     resetFavDependency('artists', id);
   }
 
-  private async getArtistIndex(id: string) {
-    const index = artists.map((artist) => artist.id).indexOf(id);
-    if (index === -1)
+  private async getArtistFromDb(id: string) {
+    const artist = await prisma.artists.findUnique({ where: { id } });
+    if (!artist)
       throw new NotFoundException(ERROR_MESSAGE.notFound('Artist', id));
 
-    return index;
+    return artist;
   }
 }

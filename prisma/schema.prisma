@@ -17,9 +17,17 @@ model users {
 }
 
 model tracks {
-  id       String  @id
+  id       String   @id
   name     String
   artistId String?
   albumId  String?
   duration Int
+  artists  artists? @relation(fields: [artistId], references: [id], onUpdate: NoAction, map: "fk_track_artist")
+}
+
+model artists {
+  id     String   @id
+  name   String
+  grammy Boolean
+  tracks tracks[]
 }

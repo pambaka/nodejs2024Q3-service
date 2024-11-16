@@ -21,15 +21,11 @@ export class FavsService {
   async add<T extends Artist | Album | Track>(key: favKey, id: string) {
     validateId(id);
 
+    let entry: unknown;
     if (key === 'tracks') {
-      const track = await prisma.tracks.findUnique({ where: { id } });
-      if (!track)
-        throw new UnprocessableEntityException(
-          ERROR_MESSAGE.notFound('Entry', id),
-        );
-      const entry = track as T;
-      const array = favs[key] as T[];
-      array.push(entry);
+      entry = await prisma.tracks.findUnique({ where: { id } });
+    } else if (key === 'artists') {
+      entry = await prisma.artists.findUnique({ where: { id } });
     } else {
       const index = getEntryIndexById(key, id);
       if (index === -1)
@@ -37,10 +33,15 @@ export class FavsService {
           ERROR_MESSAGE.notFound('Entry', id),
         );
 
-      const entry = db[key][index] as T;
-      const array = favs[key] as T[];
-      array.push(entry);
+      entry = db[key][index] as T;
     }
+    if (!entry)
+      throw new UnprocessableEntityException(
+        ERROR_MESSAGE.notFound('Entry', id),
+      );
+
+    const array = favs[key] as T[];
+    array.push(entry as T);
   }
 
   remove(key: favKey, id: string) {
