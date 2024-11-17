@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ERROR_MESSAGE } from 'src/const';
-import { resetFavDependency } from 'src/db';
 import validateId from 'src/utils/validate-id';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { Album } from './interfaces/album.interface';
@@ -54,8 +53,6 @@ export class AlbumService {
 
     const album = await this.getAlbumFromDb(id);
     if (album) await prisma.albums.delete({ where: { id } });
-
-    resetFavDependency('albums', id);
   }
 
   private async getAlbumFromDb(id: string) {

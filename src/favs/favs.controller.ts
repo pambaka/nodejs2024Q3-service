@@ -1,8 +1,5 @@
 import { Controller, Get, Post, Param, Delete, HttpCode } from '@nestjs/common';
 import { FavsService } from './favs.service';
-import { Album } from 'src/album/interfaces/album.interface';
-import { Artist } from 'src/artist/interfaces/artist.interface';
-import { Track } from 'src/track/interfaces/track.interface';
 
 @Controller('favs')
 export class FavsController {
@@ -15,17 +12,17 @@ export class FavsController {
 
   @Post('artist/:id')
   addArtist(@Param('id') id: string) {
-    return this.favsService.add<Artist>('artists', id);
+    return this.favsService.add('artists', id);
   }
 
   @Post('album/:id')
   addAlbum(@Param('id') id: string) {
-    return this.favsService.add<Album>('albums', id);
+    return this.favsService.add('albums', id);
   }
 
   @Post('track/:id')
   addTrack(@Param('id') id: string) {
-    return this.favsService.add<Track>('tracks', id);
+    return this.favsService.add('tracks', id);
   }
 
   @Delete('artist/:id')

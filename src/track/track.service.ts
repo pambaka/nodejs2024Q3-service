@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
-import { resetFavDependency } from 'src/db';
 import { ERROR_MESSAGE } from 'src/const';
 import { Track } from './interfaces/track.interface';
 import validateId from 'src/utils/validate-id';
@@ -55,8 +54,6 @@ export class TrackService {
 
     const track = await this.getTrack(id);
     if (track) await prisma.tracks.delete({ where: { id } });
-
-    resetFavDependency('tracks', id);
   }
 
   private async getTrack(id: string) {
