@@ -11,6 +11,14 @@ import { Album } from 'src/album/interfaces/album.interface';
 import { Track } from 'src/track/interfaces/track.interface';
 import prisma from 'src/prisma-client';
 
+type PrismaFunction = ({
+  where,
+  data,
+}: {
+  where?: { id: string };
+  data?: { id: string };
+}) => Promise<unknown>;
+
 @Injectable()
 export class FavsService {
   async findAll(): Promise<FavoritesResponse> {
@@ -27,9 +35,13 @@ export class FavsService {
   async add(key: favKey, id: string) {
     validateId(id);
 
-    const entry = await (prisma[key].findUnique as Function)({ where: { id } });
+    const entry = await (prisma[key].findUnique as PrismaFunction)({
+      where: { id },
+    });
     if (entry)
-      await (prisma[`favorite_${key}`].create as Function)({ data: { id } });
+      await (prisma[`favorite_${key}`].create as PrismaFunction)({
+        data: { id },
+      });
     else
       throw new UnprocessableEntityException(
         ERROR_MESSAGE.notFound('Entry', id),
@@ -39,7 +51,7 @@ export class FavsService {
   async remove(key: favKey, id: string) {
     validateId(id);
 
-    await (prisma[`favorite_${key}`].delete as Function)({
+    await (prisma[`favorite_${key}`].delete as PrismaFunction)({
       where: { id },
     }).catch(() => {
       throw new NotFoundException(ERROR_MESSAGE.notFound('Favorite entry', id));
