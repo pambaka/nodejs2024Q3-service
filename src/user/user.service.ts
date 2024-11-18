@@ -10,6 +10,7 @@ import isValidUuid from 'src/utils/is-valid-uuid';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { ERROR_MESSAGE } from 'src/const';
 import prisma from 'src/prisma-client';
+import * as crypto from 'node:crypto';
 
 @Injectable()
 export class UserService {

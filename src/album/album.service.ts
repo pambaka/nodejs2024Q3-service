@@ -5,6 +5,7 @@ import { CreateAlbumDto } from './dto/create-album.dto';
 import { Album } from './interfaces/album.interface';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import prisma from 'src/prisma-client';
+import * as crypto from 'node:crypto';
 
 @Injectable()
 export class AlbumService {

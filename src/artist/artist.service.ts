@@ -5,6 +5,7 @@ import { CreateArtistDto } from './dto/create-artist.dto';
 import { Artist } from './interfaces/artist.interface';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import prisma from 'src/prisma-client';
+import * as crypto from 'node:crypto';
 
 @Injectable()
 export class ArtistService {

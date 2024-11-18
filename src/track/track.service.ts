@@ -5,6 +5,7 @@ import { ERROR_MESSAGE } from 'src/const';
 import { Track } from './interfaces/track.interface';
 import validateId from 'src/utils/validate-id';
 import prisma from 'src/prisma-client';
+import * as crypto from 'node:crypto';
 
 @Injectable()
 export class TrackService {
