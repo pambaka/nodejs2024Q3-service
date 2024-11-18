@@ -24,4 +24,6 @@ WORKDIR /usr/src/app
 
 COPY --from=build /usr/src/app /usr/src/app
 
+EXPOSE ${PORT}
+
 CMD ["npm", "run", "start:prod"]

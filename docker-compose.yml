@@ -1,13 +1,17 @@
 services:
   postgres:
     build: ./db
+    restart: always
+    volumes:
+      - ./db/data:/var/lib/postgresql/data
+      - ./db/logs:/var/log/postgresql
     ports:
       - ${POSTGRES_PORT}:${POSTGRES_PORT}
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB={POSTGRES_DB}
-    command: -p ${POSTGRES_PORT}
+    command: -p ${POSTGRES_PORT} -c logging_collector=on -c log_directory=/var/log/postgresql
     networks:
       - custom
 
@@ -16,9 +20,11 @@ services:
     restart: always
     develop:
       watch:
-        - action: sync+restart
+        - action: rebuild
           path: ./src
           target: /usr/src/app/src
+    volumes:
+      - ./src:/usr/src/app/src
     env_file:
       - path: .env
     ports:
