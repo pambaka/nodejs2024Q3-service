@@ -1,23 +1,22 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
-import { resetFavDependency, tracks } from 'src/db';
 import { ERROR_MESSAGE } from 'src/const';
 import { Track } from './interfaces/track.interface';
 import validateId from 'src/utils/validate-id';
+import prisma from 'src/prisma-client';
+import * as crypto from 'node:crypto';
 
 @Injectable()
 export class TrackService {
   async findAll() {
-    return tracks;
+    return await prisma.tracks.findMany();
   }
 
   async findOne(id: string) {
     validateId(id);
 
-    const index = await this.getTrackIndex(id);
-
-    return tracks[index];
+    return await this.getTrack(id);
   }
 
   async create(createTrackDto: CreateTrackDto) {
@@ -30,7 +29,7 @@ export class TrackService {
       duration,
     };
 
-    tracks.push(track);
+    await prisma.tracks.create({ data: track });
 
     return track;
   }
@@ -38,8 +37,7 @@ export class TrackService {
   async update(id: string, updateTrackDto: UpdateTrackDto) {
     validateId(id);
 
-    const index = await this.getTrackIndex(id);
-    const track = tracks[index];
+    const track = await this.getTrack(id);
 
     const { name, artistId, albumId, duration } = updateTrackDto;
     if (name !== undefined) track.name = name;
@@ -47,24 +45,24 @@ export class TrackService {
     if (albumId !== undefined) track.albumId = albumId;
     if (duration !== undefined) track.duration = duration;
 
+    await prisma.tracks.update({ where: { id }, data: track });
+
     return track;
   }
 
   async remove(id: string) {
     validateId(id);
 
-    const index = await this.getTrackIndex(id);
-
-    tracks.splice(index, 1);
-
-    resetFavDependency('tracks', id);
+    const track = await this.getTrack(id);
+    if (track) await prisma.tracks.delete({ where: { id } });
   }
 
-  private async getTrackIndex(id: string) {
-    const index = tracks.map((track) => track.id).indexOf(id);
-    if (index === -1)
+  private async getTrack(id: string) {
+    const track = await prisma.tracks.findUnique({ where: { id } });
+
+    if (!track)
       throw new NotFoundException(ERROR_MESSAGE.notFound('Track', id));
 
-    return index;
+    return track;
   }
 }

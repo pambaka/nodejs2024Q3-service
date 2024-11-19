@@ -5,15 +5,21 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { users } from '../db';
 import { User, UserWoPassword } from './interfaces/user.interface';
 import isValidUuid from 'src/utils/is-valid-uuid';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { ERROR_MESSAGE } from 'src/const';
+import prisma from 'src/prisma-client';
+import * as crypto from 'node:crypto';
 
 @Injectable()
 export class UserService {
   async getUsers(): Promise<User[]> {
+    const users: User[] = (await prisma.users.findMany()).map((user) => {
+      const createdAt = new Date(user.createdAt).getTime();
+      const updatedAt = new Date(user.updatedAt).getTime();
+      return { ...user, createdAt, updatedAt };
+    });
     return users;
   }
 
@@ -21,29 +27,35 @@ export class UserService {
     if (!isValidUuid(id))
       throw new BadRequestException(ERROR_MESSAGE.invalidUuid);
 
-    const user = users.find((user) => user.id === id);
+    const user = await prisma.users.findUnique({ where: { id: id } });
     if (!user) throw new NotFoundException(ERROR_MESSAGE.notFound('User', id));
 
-    return users.find((user) => user.id === id);
+    const createdAt = new Date(user.createdAt).getTime();
+    const updatedAt = new Date(user.updatedAt).getTime();
+    return { ...user, createdAt, updatedAt };
   }
 
   async createUser(createUserDto: CreateUserDto): Promise<UserWoPassword> {
     const { login, password } = createUserDto;
     const timestamp = Date.now();
-    const newUser: User = {
+    const newUser = {
       id: crypto.randomUUID(),
       login,
       password,
       version: 1,
-      createdAt: timestamp,
-      updatedAt: timestamp,
+      createdAt: timestamp.toString(),
+      updatedAt: timestamp.toString(),
     };
-    users.push(newUser);
+    await prisma.users.create({ data: { ...newUser } });
 
     const userWithoutPassword = Object.assign({}, newUser);
     delete userWithoutPassword.password;
 
-    return userWithoutPassword;
+    return {
+      ...userWithoutPassword,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    };
   }
 
   async updatePassword(
@@ -53,33 +65,37 @@ export class UserService {
     if (!isValidUuid(id))
       throw new BadRequestException(ERROR_MESSAGE.invalidUuid);
 
-    const index = users.map((user) => user.id).indexOf(id);
-    if (index === -1)
-      throw new NotFoundException(ERROR_MESSAGE.notFound('User', id));
+    const user = await prisma.users.findUnique({ where: { id } });
+    if (!user) throw new NotFoundException(ERROR_MESSAGE.notFound('User', id));
 
     const { oldPassword, newPassword } = updatePasswordDto;
 
-    if (users[index].password !== oldPassword)
+    if (user.password !== oldPassword)
       throw new ForbiddenException(ERROR_MESSAGE.permissionDenied);
 
-    users[index].password = newPassword;
-    users[index].version += 1;
-    users[index].updatedAt = Date.now();
+    user.password = newPassword;
+    user.version += 1;
+    const timestamp = Date.now();
+    user.updatedAt = timestamp.toString();
+    await prisma.users.update({ where: { id }, data: { ...user } });
 
-    const userWithoutPassword = Object.assign({}, users[index]);
+    const userWithoutPassword = Object.assign({}, user);
     delete userWithoutPassword.password;
 
-    return userWithoutPassword;
+    return {
+      ...userWithoutPassword,
+      updatedAt: timestamp,
+      createdAt: +user.createdAt,
+    };
   }
 
   async deleteUser(id: string) {
     if (!isValidUuid(id))
       throw new BadRequestException(ERROR_MESSAGE.invalidUuid);
 
-    const index = users.map((user) => user.id).indexOf(id);
-    if (index === -1)
-      throw new NotFoundException(ERROR_MESSAGE.notFound('User', id));
+    const user = await prisma.users.findUnique({ where: { id } });
+    if (!user) throw new NotFoundException(ERROR_MESSAGE.notFound('User', id));
 
-    users.splice(index, 1);
+    await prisma.users.delete({ where: { id } });
   }
 }
