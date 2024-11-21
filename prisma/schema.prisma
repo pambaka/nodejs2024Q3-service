@@ -10,7 +10,7 @@ datasource db {
 model users {
   id        String @id
   login     String @db.VarChar(36)
-  password  String @db.VarChar(36)
+  password  String
   version   Int
   createdAt String
   updatedAt String
