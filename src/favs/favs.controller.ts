@@ -8,9 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { FavsService } from './favs.service';
-import { AuthGuard } from 'src/auth/auth.guard';
 
-@UseGuards(AuthGuard)
 @Controller('favs')
 export class FavsController {
   constructor(private readonly favsService: FavsService) {}

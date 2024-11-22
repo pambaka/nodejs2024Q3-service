@@ -18,6 +18,7 @@ async function bootstrap() {
   const file = await fs.readFile(path.resolve('doc', 'api.json'), {
     encoding: 'utf-8',
   });
+
   SwaggerModule.setup('doc', app, JSON.parse(file));
 
   await app.listen(port, () => {
