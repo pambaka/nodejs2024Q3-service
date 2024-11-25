@@ -5,22 +5,32 @@ import * as os from 'node:os';
 
 @Injectable()
 export class CustomLogger extends ConsoleLogger {
-  async log(message: string) {
+  async log(message: string, context?: string) {
     super.log(message);
-    this.writeToFile('LOG', message);
+    this.writeToFile({ level: 'LOG', message, context });
   }
 
   async error(message: string, stack?: string, context?: string) {
     super.error(message, stack, context);
-    this.writeToFile('ERROR', message);
+    this.writeToFile({ level: 'ERROR', message, stack, context });
   }
 
   async warn(message: string) {
     super.warn(message);
-    await this.writeToFile('WARN', message);
+    await this.writeToFile({ level: 'WARN', message });
   }
 
-  private async writeToFile(level: 'LOG' | 'ERROR' | 'WARN', message: string) {
+  private async writeToFile({
+    level,
+    message,
+    stack,
+    context,
+  }: {
+    level: 'LOG' | 'ERROR' | 'WARN';
+    message: string;
+    stack?: string;
+    context?: string;
+  }) {
     const fileName = './log/app.log';
     const ws = fs.createWriteStream(fileName, {
       encoding: 'utf8',
@@ -29,6 +39,10 @@ export class CustomLogger extends ConsoleLogger {
     const date = new Date().toDateString();
     const time = new Date().toLocaleTimeString();
 
-    await pipeline(`${date}, ${time}    ${level} ${message} ${os.EOL}`, ws);
+    await pipeline(
+      `${date}, ${time}    ${level} [${context ?? ''}] ${message} ${os.EOL}`,
+      ws,
+    );
+    if (stack) await pipeline(`${stack} ${os.EOL}`, ws);
   }
 }

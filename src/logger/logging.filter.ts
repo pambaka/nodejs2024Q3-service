@@ -23,7 +23,7 @@ export class CustomFilter implements ExceptionFilter {
 
     const logger = new CustomLogger();
     logger.setContext('Response');
-    await logger.log(`${httpStatus}`);
+    await logger.log(`${httpStatus}`, 'Response');
 
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();

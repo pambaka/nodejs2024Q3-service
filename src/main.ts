@@ -5,7 +5,6 @@ import * as dotenv from 'dotenv';
 import { SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { exit } from 'node:process';
 import { CustomLogger } from './logger/logger.service';
 import { LoggingInterceptor } from './logger/logging.interceptor';
 import { CustomFilter } from './logger/logging.filter';
@@ -35,10 +34,14 @@ async function bootstrap() {
 bootstrap();
 
 process.on('uncaughtException', (error: Error) => {
-  console.error(error.message);
+  const logger = new CustomLogger();
+  logger.error(error.message, error.stack, 'UncaughtException');
 
   if (error instanceof RangeError)
     console.log('Please check port value in .env file.');
+});
 
-  exit(1);
+process.on('unhandledRejection', (message: string) => {
+  const logger = new CustomLogger();
+  logger.error(message, '', 'UnhandledRejection');
 });
