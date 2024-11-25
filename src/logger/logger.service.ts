@@ -20,7 +20,13 @@ export class CustomLogger extends ConsoleLogger {
   async error(message: string, stack?: string, context?: string) {
     if (levels.includes('error')) {
       super.error(message, stack, context);
-      this.writeToFile({ level: 'error', message, stack, context });
+      this.writeToFile({
+        level: 'error',
+        message,
+        stack,
+        context,
+        isError: true,
+      });
     }
   }
 
@@ -48,13 +54,15 @@ export class CustomLogger extends ConsoleLogger {
     message,
     stack,
     context,
+    isError = false,
   }: {
     level: LogLevel;
     message: string;
     stack?: string;
     context?: string;
+    isError?: boolean;
   }) {
-    const fileName = './log/app.log';
+    const fileName = isError ? './log/app-error.log' : './log/app.log';
     const ws = fs.createWriteStream(fileName, {
       encoding: 'utf8',
       flags: 'a+',
