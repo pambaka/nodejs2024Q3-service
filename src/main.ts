@@ -1,4 +1,4 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as dotenv from 'dotenv';
@@ -8,6 +8,7 @@ import * as path from 'node:path';
 import { exit } from 'node:process';
 import { CustomLogger } from './logger/logger.service';
 import { LoggingInterceptor } from './logger/logging.interceptor';
+import { CustomFilter } from './logger/logging.filter';
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ async function bootstrap() {
   });
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalInterceptors(new LoggingInterceptor(new CustomLogger()));
+  app.useGlobalFilters(new CustomFilter(app.get(HttpAdapterHost)));
 
   const file = await fs.readFile(path.resolve('doc', 'api.json'), {
     encoding: 'utf-8',

@@ -26,8 +26,9 @@ export class CustomLogger extends ConsoleLogger {
       encoding: 'utf8',
       flags: 'a+',
     });
-    const date = new Date(Date.now());
+    const date = new Date().toDateString();
+    const time = new Date().toLocaleTimeString();
 
-    await pipeline(`${date} ${level} ${message} ${os.EOL}`, ws);
+    await pipeline(`${date}, ${time}    ${level} ${message} ${os.EOL}`, ws);
   }
 }
