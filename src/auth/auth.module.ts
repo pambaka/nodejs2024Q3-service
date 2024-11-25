@@ -6,9 +6,14 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtModuleOptions } from './const';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
+import { LoggerModule } from 'src/logger/logger.module';
 
 @Module({
-  imports: [forwardRef(() => UserModule), JwtModule.register(jwtModuleOptions)],
+  imports: [
+    forwardRef(() => UserModule),
+    JwtModule.register(jwtModuleOptions),
+    LoggerModule,
+  ],
   controllers: [AuthController],
   providers: [AuthService, { provide: APP_GUARD, useClass: AuthGuard }],
 })

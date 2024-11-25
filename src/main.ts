@@ -7,6 +7,7 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { exit } from 'node:process';
 import { CustomLogger } from './logger/logger.service';
+import { LoggingInterceptor } from './logger/logging.interceptor';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ async function bootstrap() {
     logger: new CustomLogger(),
   });
   app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalInterceptors(new LoggingInterceptor(new CustomLogger()));
 
   const file = await fs.readFile(path.resolve('doc', 'api.json'), {
     encoding: 'utf-8',

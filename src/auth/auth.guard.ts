@@ -10,20 +10,30 @@ import { IS_PUBLIK_KEY } from './const';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { JsonWebTokenError } from 'jsonwebtoken';
+import { CustomLogger } from 'src/logger/logger.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService, private reflector: Reflector) {}
+  constructor(
+    private jwtService: JwtService,
+    private reflector: Reflector,
+    private logger: CustomLogger,
+  ) {
+    this.logger.setContext('Request');
+  }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request: Request = context.switchToHttp().getRequest();
+    await this.logger.log(
+      `${request.method} ${request.url} ${JSON.stringify(request.body)}`,
+    );
+
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIK_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
 
     if (isPublic) return true;
-
-    const request: Request = context.switchToHttp().getRequest();
 
     const token = await this.extractTokenFromHeader(request);
     if (!token) throw new UnauthorizedException();
