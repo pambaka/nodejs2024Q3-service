@@ -20,11 +20,11 @@ services:
     restart: always
     develop:
       watch:
-        - action: rebuild
+        - action: sync+restart
           path: ./src
           target: /usr/src/app/src
     volumes:
-      - ./src:/usr/src/app/src
+      - ./log:/usr/src/app/log
     env_file:
       - path: .env
     ports:

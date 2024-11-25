@@ -6,13 +6,16 @@ import { SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { exit } from 'node:process';
+import { CustomLogger } from './logger/logger.service';
 
 dotenv.config();
 
 const port = parseInt(process.env.PORT);
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: new CustomLogger(),
+  });
   app.useGlobalPipes(new ValidationPipe());
 
   const file = await fs.readFile(path.resolve('doc', 'api.json'), {
