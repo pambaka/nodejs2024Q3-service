@@ -14,7 +14,7 @@ git clone https://github.com/pambaka/nodejs2024Q3-service.git
 ## Switch to the develop branch
 
 ```
-git checkout develop-2
+git checkout develop-3
 ```
 
 ## Installing NPM modules
@@ -27,15 +27,6 @@ npm install
 
 ```
 mv .env.example .env
-```
-
-## Pull server and postgress images
-
-```
-docker pull pambaka/nodejs2024q3-service-server
-```
-```
-docker pull pambaka/nodejs2024q3-service-postgres
 ```
 
 ## Running application
@@ -64,7 +55,7 @@ replace `{docker-hub}` with the docker hub name and `{image}` with the image nam
 After starting the app on port (4000 as default) you can open
 in your browser OpenAPI documentation by typing 
 
-```http://localhost:4000/api```
+```http://localhost:4000/doc```
 
 For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
@@ -72,24 +63,13 @@ For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
 After application running open new terminal and enter:
 
-To run all tests without authorization
-
-```
-npm run test
-```
-
-To run only one of all test suites
-
-```
-npm run test -- <path to suite>
-```
----
-// TO BE DONE:
-
-To run all test with authorization
+To run all tests with authorization
 
 ```
 npm run test:auth
+```
+```
+npm run test:refresh
 ```
 
 To run only specific test suite with authorization

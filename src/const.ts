@@ -1,3 +1,7 @@
+import * as dotenv from 'dotenv';
+
+dotenv.config();
+
 export const ERROR_MESSAGE = {
   invalidDto: (keys: string[]) =>
     `Either the required keys (${keys.join(
@@ -8,3 +12,5 @@ export const ERROR_MESSAGE = {
     `${resource} with id ${id} is not found`,
   permissionDenied: 'You do not have permission to perform this request',
 };
+
+export const CRYPT_SALT = parseInt(process.env.CRYPT_SALT, 10);

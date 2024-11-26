@@ -13,8 +13,6 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     
 COPY . .
 
-RUN npm run build
-
 RUN npx prisma generate
 
 
@@ -26,4 +24,4 @@ COPY --from=build /usr/src/app /usr/src/app
 
 EXPOSE ${PORT}
 
-CMD ["npm", "run", "start:prod"]
+CMD ["npm", "run", "start:dev"]
